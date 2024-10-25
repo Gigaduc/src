@@ -6,40 +6,50 @@ import java.util.List;
 import java.util.Random;
 
 public class ColoredDiscs {
+    // Klassenattribute
     private List<DiscModel> discs;
     private Color backgroundColor;
 
-    // Constructor to initialize the collection of random discs and background color
+    // Konstruktor zum Initialisieren der Sammlung zufälliger Scheiben und Hintergrundfarbe
     public ColoredDiscs(int numDiscs, Color backgroundColor) {
         this.discs = new ArrayList<>();
         this.backgroundColor = backgroundColor;
         Random rand = new Random();
 
-        // Generate random discs
+        // Generiere zufällige Scheiben
         for (int i = 0; i < numDiscs; i++) {
-            double centerX = rand.nextDouble() * 2 - 1; // Random x in range [-1, 1]
-            double centerY = rand.nextDouble() * 2 - 1; // Random y in range [-1, 1]
-            double radius = rand.nextDouble() * 0.5;    // Random radius in range [0, 0.5]
-            Color color = new Color(rand.nextDouble(), rand.nextDouble(), rand.nextDouble()); // Random color
+            double centerX = rand.nextDouble() * 2 - 1;    // Zufälliges x im Bereich [-1, 1]
+            double centerY = rand.nextDouble() * 2 - 1;    // Zufälliges y im Bereich [-1, 1]
+            double radius = rand.nextDouble() * 0.3 + 0.1; // Radius zwischen 0.1 und 0.4
+            
+            // Erzeuge kräftige Farben mit Gamma-Korrektur
+            Color color = new Color(
+                Math.pow(rand.nextDouble(), 0.5),
+                Math.pow(rand.nextDouble(), 0.5),
+                Math.pow(rand.nextDouble(), 0.5)
+            );
 
             discs.add(new DiscModel(centerX, centerY, radius, color));
         }
     }
 
-    // Method to get the color of the disc covering the point (x, y)
+    // Methode zum Ermitteln der Farbe der Scheibe, die den Punkt (x, y) überdeckt
     public Color getColor(double x, double y) {
-        DiscModel smallestDisc = null;
+        DiscModel visibleDisc = null;
+        double minRadius = Double.MAX_VALUE;
 
-        // Check all discs and find the smallest one that covers the point (x, y)
+        // Prüfe alle Scheiben und finde die kleinste, die den Punkt (x, y) überdeckt
         for (DiscModel disc : discs) {
             if (disc.coversPoint(x, y)) {
-                if (smallestDisc == null || disc.getRadius() < smallestDisc.getRadius()) {
-                    smallestDisc = disc;
+                if (disc.getRadius() < minRadius) {
+                    minRadius = disc.getRadius();
+                    visibleDisc = disc;
                 }
             }
         }
 
-        // If a disc covers the point, return its color; otherwise, return the background color
-        return smallestDisc != null ? smallestDisc.getColor() : backgroundColor;
+        // Wenn eine Scheibe den Punkt überdeckt, gib ihre Farbe zurück,
+        // ansonsten die Hintergrundfarbe
+        return visibleDisc != null ? visibleDisc.getColor() : backgroundColor;
     }
 }
